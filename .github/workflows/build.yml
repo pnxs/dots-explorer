@@ -15,8 +15,14 @@ jobs:
         # We'll use this as our working directory for all subsequent commands
         run: cmake -E make_directory ${{github.workspace}}/build
 
+      #- name: Install DirectX SDK
+      #  run: choco install windows-sdk-10.0 -y
+
       - name: Install DirectX SDK
-        run: choco install windows-sdk-10.0 -y
+        run: choco install directx-sdk -y
+
+      #- name: Set DXSDK_DIR
+      #  run: echo DXSDK_DIR=C:/Program Files (x86)/Microsoft DirectX SDK (June 2010) >> $GITHUB_ENV
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
