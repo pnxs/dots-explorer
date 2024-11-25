@@ -40,8 +40,7 @@ jobs:
 
       - name: 'Configure CMake'
         working-directory: ${{ github.workspace }}
-        run: cmake -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" \
-                   -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
+        run: cmake -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
 
       - name: 'Build'
         working-directory: ${{ github.workspace }}
