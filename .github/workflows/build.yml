@@ -24,6 +24,7 @@ jobs:
         run: pip install dots-code-generator
 
       - name: Install boost
+        id: boost
         uses: egor-tensin/build-boost@v1
         with:
           version: 1.85.0
@@ -31,9 +32,16 @@ jobs:
           platform: 'x64'
           configuration: 'Release'
 
+      - name: Show paths
+        run: |
+          printf 'Boost has been unpacked to: %s\n' '${{ steps.boost.outputs.root }}'
+          printf 'Libraries can be found here: %s\n' '${{ steps.boost.outputs.librarydir }}'
+        shell: bash
+
       - name: 'Configure CMake'
         working-directory: ${{ github.workspace }}
-        run: cmake -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON
+        run: cmake -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" \
+                   -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
 
       - name: 'Build'
         working-directory: ${{ github.workspace }}
