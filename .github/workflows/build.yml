@@ -20,6 +20,14 @@ jobs:
         with:
           arch: amd64_x86
 
+      #- name: Set up Python
+      #  uses: actions/setup-python@v2
+      ##  with:
+      #    python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade pip
+        run: pip install dots-code-generator
+
       - name: 'Configure CMake'
         working-directory: ${{ github.workspace }}
         run: cmake -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON
