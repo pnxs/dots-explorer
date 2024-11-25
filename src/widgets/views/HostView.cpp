@@ -385,7 +385,7 @@ void HostView::disconnect()
         m_cacheView.reset();
         m_traceView.reset();
         m_transceiverModel.reset();
-        dots::global_transceiver().reset();
+        dots::global_transceiver_destroy();
         ioContext.restart();
         ioContext.poll();
     }
@@ -408,12 +408,12 @@ void HostView::update()
             m_connectTask = std::async(std::launch::async, [this]
             {
                 using transition_handler_t = dots::GuestTransceiver::transition_handler_t;
-                dots::GuestTransceiver& transceiver = dots::global_transceiver().emplace(
+                dots::GuestTransceiver& transceiver = dots::global_transceiver_create(dots::GuestTransceiver(
                     m_appName,
                     dots::io::global_io_context(),
                     dots::type::Registry::StaticTypePolicy::InternalOnly,
                     transition_handler_t{ &HostView::handleTransceiverTransition, this }
-                );
+                ));
 
                 dots::io::Endpoint endpoint{ *m_hostSettings.activeHost->endpoint };
 
@@ -437,7 +437,7 @@ void HostView::update()
                     if (transceiver.connected())
                         break;
                     else
-                        dots::global_transceiver()->ioContext().run_one();
+                        dots::global_transceiver().ioContext().run_one();
                 }
             });
             m_state = State::Connecting;
@@ -468,7 +468,7 @@ void HostView::update()
 
                 for (size_t totalHandlersExecuted = 0;;)
                 {
-                    size_t handlersExecuted = dots::global_transceiver()->ioContext().poll_one();
+                    size_t handlersExecuted = dots::global_transceiver().ioContext().poll_one();
                     totalHandlersExecuted += handlersExecuted;
 
                     if (!handlersExecuted || (totalHandlersExecuted % 1000 == 0 && (dots::steady_timepoint_t::Now() - start > 15ms)))

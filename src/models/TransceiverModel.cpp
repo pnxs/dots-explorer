@@ -33,7 +33,7 @@ void TransceiverModel::subscribe(struct_type_handler_t handler)
 void TransceiverModel::writeTraceFile(std::filesystem::path path)
 {
     dots::type::Registry registry{ std::nullopt, dots::type::Registry::StaticTypePolicy::InternalOnly };
-    auto outChannel = dots::io::make_channel<dots::io::FileOutChannel>(dots::global_transceiver()->ioContext(), std::move(path));
+    auto outChannel = dots::io::make_channel<dots::io::FileOutChannel>(dots::global_transceiver().ioContext(), std::move(path));
     outChannel->init(registry);
 
     for (const auto& [header, model] : m_eventData)
