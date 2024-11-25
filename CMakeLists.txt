@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS OFF)
 if (MSVC)
     # use standard C++ exception model and assume no exceptions for external C functions
     # note that this needs to be set globally to include external targets because MSVC is disadvising
@@ -62,13 +62,15 @@ FetchContent_Declare(
     dots-cpp
     GIT_REPOSITORY https://github.com/pnxs/dots-cpp.git
     GIT_TAG         02f07982ae237bb510302d45595b78ea21595ca1
+    #GIT_TAG        4f6f8f0ca83b718f495ce9bc799d39cb5653af0e
+#    GIT_TAG        aeb2881dd7258c425dfc8672c25bf39427a3d359
 )
 
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG        8.0.1
-)
+#FetchContent_Declare(
+#    fmt
+#    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#    GIT_TAG        8.0.1
+#)
 
 option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
 option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
@@ -86,12 +88,12 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/google/re2.git
     GIT_TAG        2022-04-01
 )
-FetchContent_MakeAvailable(dots-cpp fmt glfw re2)
+FetchContent_MakeAvailable(dots-cpp glfw re2)
 
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG        v1.89
+    GIT_TAG        v1.90.9
 )
 # Check if population has already been performed
 FetchContent_GetProperties(imgui)
@@ -99,7 +101,8 @@ if (NOT imgui_POPULATED)
   FetchContent_Populate(imgui)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS filesystem)
+
+find_package(Boost CONFIG PATHS ${BOOST_ROOT} REQUIRED COMPONENTS filesystem)
 
 # target
 add_executable(${TARGET_NAME})
