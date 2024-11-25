@@ -5,10 +5,12 @@
 #include <dots/io/Io.h>
 #include <dots/io/channels/LocalListener.h>
 #include <dots_ext/FileInChannel.h>
+#include <dots/tools/logging.h>
 #include <common/Colors.h>
 #include <common/Settings.h>
 #include <common/System.h>
 #include <DotsDescriptorRequest.dots.h>
+#include <DotsCacheInfo.dots.h>
 
 HostView::HostView(std::string appName) :
     m_state(State::Disconnected),
@@ -414,6 +416,10 @@ void HostView::update()
                     dots::type::Registry::StaticTypePolicy::InternalOnly,
                     transition_handler_t{ &HostView::handleTransceiverTransition, this }
                 ));
+
+                if (dots::global_transceiver().registry().findType("DotsCacheInfo") == nullptr) {
+                    dots::global_transceiver().registry().registerType(dots::type::Descriptor<DotsCacheInfo>::Instance());
+                }
 
                 dots::io::Endpoint endpoint{ *m_hostSettings.activeHost->endpoint };
 
