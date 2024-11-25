@@ -6,23 +6,27 @@ jobs:
   build:
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'true'
 
-      - name: Create Build Environment
-        # Some projects don't allow in-source building, so create a separate build directory
-        # We'll use this as our working directory for all subsequent commands
-        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Set up msbuild
+        uses: microsoft/setup-msbuild@v2
 
-      #- name: Install DirectX SDK
-      #  run: choco install windows-sdk-10.0 -y
+      - name: 'Install Ninja'
+        run: choco install ninja
 
-      - name: Install DirectX SDK
-        run: choco install directx-sdk -y
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+        with:
+          arch: amd64_x86
 
-      #- name: Set DXSDK_DIR
-      #  run: echo DXSDK_DIR=C:/Program Files (x86)/Microsoft DirectX SDK (June 2010) >> $GITHUB_ENV
+      - name: 'Configure CMake'
+        working-directory: ${{ github.workspace }}
+        run: cmake --preset=x86-Release-Win10 -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON
+
+      - name: 'Build'
+        working-directory: ${{ github.workspace }}
+        run: cmake --build out\build\x86-Release-Win10
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
