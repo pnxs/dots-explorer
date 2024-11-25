@@ -22,11 +22,11 @@ jobs:
 
       - name: 'Configure CMake'
         working-directory: ${{ github.workspace }}
-        run: cmake --preset=x86-Release-Win10 -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON
+        run: cmake -DBUILD_DOTS_SHARED=OFF -DBoost_USE_STATIC_LIBS=ON
 
       - name: 'Build'
         working-directory: ${{ github.workspace }}
-        run: cmake --build out\build\x86-Release-Win10
+        run: cmake --build out\build
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
