@@ -3,6 +3,7 @@
 #include <fstream>
 #include <dots/asio.h>
 #include <dots/HostTransceiver.h>
+#include <dots/tools/logging.h>
 
 namespace dots::io::details
 {
@@ -40,13 +41,39 @@ namespace dots::io::details
                     try
                     {
                         DotsHeader header = m_serializer.deserialize<DotsHeader>();
-                        type::AnyStruct instance{ m_fileRegistry.getStructType(*header.typeName) };
+
+                        //TODO: make feature-switch configurable
+                        bool skip_missing = true;
+
+                        auto* td = m_fileRegistry.findStructType(*header.typeName, !skip_missing);
+                        if (td == nullptr)
+                        {
+                            LOG_WARN_S("Skip missing type: " << *header.typeName);
+                            m_serializer.reader().skip();
+                            asio::post(m_ioContext.get(), [this] { asyncReceiveImpl(); });
+                            return;
+                        }
+
+                        type::AnyStruct instance{ *td };
                         m_serializer.deserialize(*instance);
 
-                        if (auto* structDescriptorData = instance->_as<StructDescriptorData>())
-                            DescriptorConverter{ m_fileRegistry }(*structDescriptorData);
-                        else if (auto* enumDescriptorData = instance->_as<EnumDescriptorData>())
-                            DescriptorConverter{ m_fileRegistry }(*enumDescriptorData);
+                        try {
+                            if (auto *structDescriptorData = instance->_as<StructDescriptorData>())
+                                DescriptorConverter{m_fileRegistry}(*structDescriptorData);
+                            else if (auto *enumDescriptorData = instance->_as<EnumDescriptorData>())
+                                DescriptorConverter{m_fileRegistry}(*enumDescriptorData);
+                        } catch(const std::exception& e)
+                        {
+                            if (skip_missing) {
+                                LOG_WARN_S("Skip missing type: " << *header.typeName);
+                                m_serializer.reader().skip();
+                                asio::post(m_ioContext.get(), [this] { asyncReceiveImpl(); });
+                                return;
+                            }
+                            else {
+                                throw;
+                            }
+                        }
 
                         header.attributes.valueOrEmplace(instance->_validProperties());
                         m_fileConnection->transmit(header, instance);
@@ -86,4 +113,5 @@ namespace dots::io::details
 
         m_serializer.setInput(m_buffer.data(), m_buffer.size());
     }
+
 }
