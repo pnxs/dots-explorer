@@ -461,8 +461,9 @@ void HostView::update()
                     m_state = State::Connected;
                 }
             }
-            catch (...)
+            catch (std::exception& e)
             {
+                LOG_ERROR_S("Error connecting: " << e.what());
                 m_deltaSinceError = 0.0f;
                 m_state = State::Error;
             }
