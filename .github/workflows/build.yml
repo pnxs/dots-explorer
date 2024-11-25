@@ -20,16 +20,16 @@ jobs:
         with:
           arch: amd64_x86
 
-      #- name: Set up Python
-      #  uses: actions/setup-python@v2
-      ##  with:
-      #    python-version: ${{ matrix.python-version }}
-
       - name: Upgrade pip
         run: pip install dots-code-generator
 
       - name: Install boost
-        run: choco install boost-msvc-14.3
+        uses: egor-tensin/build-boost@v1
+        with:
+          version: 1.85.0
+          libraries: filesystem
+          platform: 'x64'
+          configuration: 'Release'
 
       - name: 'Configure CMake'
         working-directory: ${{ github.workspace }}
